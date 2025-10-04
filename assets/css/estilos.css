@@ -1,0 +1,494 @@
+/* Fondo de pantalla */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* Imagen de fondo con efecto borroso */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../img/ies6.png") no-repeat center center;
+    background-size: cover;
+    filter: blur(6px);
+    z-index: -1;
+}
+
+/* Contenedor de login */
+.login-container {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+    text-align: center;
+    width: 320px;
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Logo */
+.logo {
+    display: block;
+    margin: 0 auto 15px auto;
+    width: 80%;
+    max-width: 250px;
+}
+
+/* Inputs */
+.login-container input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 90%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Botón */
+button {
+    width: 100%;
+    padding: 10px;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1a252f;
+}
+
+/* Mensaje de error */
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+
+/*      INICIO PANEL DASHBOARD          */
+
+
+/* --- Fondo general igual al index.php --- */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: url('ies6.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+}
+
+/* --- Estilo del encabezado superior --- */
+header {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+/* --- Botón de cerrar sesión y usuario activo --- */
+header .usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .usuario span {
+    font-weight: bold;
+}
+
+header .usuario a {
+    background-color: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+header .usuario a:hover {
+    background-color: #c0392b;
+}
+
+/* --- Panel lateral --- */
+nav {
+    width: 220px;
+    background-color: rgba(0, 0, 0, 0.85);
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    padding-top: 20px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    margin-bottom: 10px;
+}
+
+nav ul li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Íconos en el menú lateral --- */
+nav ul li a i {
+    font-size: 18px;
+}
+
+/* --- Área principal de contenido --- */
+main {
+    margin-left: 240px; /* para no superponerse con el menú lateral */
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    min-height: calc(100vh - 60px);
+    border-radius: 10px 0 0 0;
+}
+
+/* --- Formulario de socios --- */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+form input, form button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+form button {
+    background-color: #2ecc71;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #27ae60;
+}
+
+
+
+/*      FIN PANEL DASHBOARD       */
+
+
+
+/*     FORMULARIO DE ALTA DE SOCIOS.     */
+
+.form-container {
+    max-width: 500px;
+    margin: 50px auto;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/*       ACTUALIZACION EN DASHBOARD*/
+
+/* --- Mostrar usuario y cerrar sesión en header --- */
+header .usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+header .usuario a {
+    background-color: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+header .usuario a:hover {
+    background-color: #c0392b;
+}
+
+/* --- Grupo DNI + botón verificar --- */
+.grupo-dni {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Botón verificar */
+#btnVerificar {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+#btnVerificar:hover {
+    background-color: #0056b3;
+}
+
+/* Select destacado */
+#tipo {
+    border: 2px solid #007BFF;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #f8f9fa;
+}
+
+/* --- Select de tipo socio con estilo destacado --- */
+select.select-tipo {
+    background-color: #f0f8ff;
+    border: 2px solid #3498db;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/*        INSUMO.PHP      */
+
+/* --- INSUMOS --- */
+.insumos-container {
+    padding: 20px;
+}
+
+.tipo-insumo-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tipo-insumo-buttons button {
+    width: 120px;
+    height: 120px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.tipo-insumo-buttons button.active {
+    background-color: #28a745;
+}
+
+.tipo-insumo-buttons button:hover {
+    background-color: #0056b3;
+}
+
+.busqueda {
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.busqueda input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.busqueda button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.busqueda button:hover {
+    background-color: #0056b3;
+}
+
+.tabla-insumos table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tabla-insumos th, .tabla-insumos td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.tabla-insumos th {
+    background-color: #007bff;
+    color: white;
+}
+
+/*.       FIN INSUMO.PHP        */
+
+/*    MEJORAR TABLA PRESTAMOS.     */
+
+/* Estilo general para la tabla de préstamos */
+#tablaPrestamos {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 15px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+/* Bordes y fondo de encabezado */
+#tablaPrestamos th {
+    border: 1px solid #ccc;
+    background-color: #f2f2f2;
+    padding: 8px;
+    text-align: center;
+}
+
+/* Bordes y fondo de celdas */
+#tablaPrestamos td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+/* Filas alternadas para mejorar lectura */
+#tablaPrestamos tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Resaltar fila al pasar el mouse */
+#tablaPrestamos tr:hover {
+    background-color: #e6f7ff;
+}
+/*    FIN MEJORAR TABLA PRESTAMOS.     */
+
+/*.  ESTILIZAR FORM ALTA INSUMO.     */
+
+form {
+    max-width: 400px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+form input, form select {
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    margin-top: 15px;
+    padding: 8px;
+    border: none;
+    background-color: #2c7;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+form button[type="button"] {
+    background-color: #777;
+}
