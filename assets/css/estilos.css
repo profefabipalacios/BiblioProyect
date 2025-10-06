@@ -492,3 +492,87 @@ form button {
 form button[type="button"] {
     background-color: #777;
 }
+
+/*.        INICIO ESTILO PRESTAMO*/
+/* --- ESTILOS PARA GESTIÓN DE PRÉSTAMOS --- */
+.busqueda {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.busqueda input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.busqueda button {
+    width: 80%;           /* <-- reducción del ancho */
+    max-width: 50px;      /* evita que crezca demasiado */
+    background-color: #1e88e5;
+    border: none;
+    color: white;
+    padding: 7px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.busqueda button:hover {
+    background-color: #1565c0;
+}
+
+/* Tablas */
+.tabla-busqueda table,
+#tablaSeleccionados {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla-busqueda th,
+.tabla-busqueda td,
+#tablaSeleccionados th,
+#tablaSeleccionados td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+}
+
+.tabla-busqueda th {
+    background-color: #f2f2f2;
+}
+
+#tablaSeleccionados th {
+    background-color: #e3f2fd;
+}
+
+/* Botones dentro de tablas */
+#tablaSeleccionados button,
+.tabla-busqueda button {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+#tablaSeleccionados button:hover,
+.tabla-busqueda button:hover {
+    background-color: #388e3c;
+}
+
+/* Contenedor general */
+.prestamos-container h2 {
+    margin-bottom: 15px;
+}
+
+.formulario-prestamo h3 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+/*         FIN ESTILO PRESTAMO*/

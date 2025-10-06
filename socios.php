@@ -31,6 +31,17 @@ require_once "includes/conexion.php";
         <option value="Docente">Docente</option>
     </select>
 
+    <label for="carrera">Carrera (opcional):</label>
+    <select name="carrera" id="carrera" disabled>
+        <option value="">-- Sin carrera --</option>
+        <option value="PROF. DE INGLÉS">PROF. DE INGLÉS</option>
+        <option value="PROF. DE EDUCACIÓN SECUNDARIA EN MATEMÁTICA">PROF. DE EDUCACIÓN SECUNDARIA EN MATEMÁTICA</option>
+        <option value="PROF. DE EDUCACIÓN SECUNDARIA EN INFORMÁTICA">PROF. DE EDUCACIÓN SECUNDARIA EN INFORMÁTICA</option>
+        <option value="PROF. DE EDUCACIÓN SECUNDARIA EN CIENCIAS DE LA ADMINISTRACIÓN">PROF. DE EDUCACIÓN SECUNDARIA EN CIENCIAS DE LA ADMINISTRACIÓN</option>
+        <option value="TEC. EN CIENCIA DE DATOS E INTELIGENCIA ARTIFICIAL">TEC. EN CIENCIA DE DATOS E INTELIGENCIA ARTIFICIAL</option>
+        <option value="TEC. SUPERIOR EN TECNOLOGÍAS DE LOS ALIMENTOS">TEC. SUPERIOR EN TECNOLOGÍAS DE LOS ALIMENTOS</option>
+    </select>
+
     <button type="submit" id="btnGuardar" disabled>Guardar</button>
 </form>
 
@@ -44,7 +55,6 @@ document.getElementById('btnVerificar').addEventListener('click', function () {
         return;
     }
 
-    // Petición AJAX
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "verificar_socio.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -68,6 +78,7 @@ function habilitarCampos() {
     document.getElementById('nombre').disabled = false;
     document.getElementById('apellido').disabled = false;
     document.getElementById('tipo').disabled = false;
+    document.getElementById('carrera').disabled = false;
     document.getElementById('btnGuardar').disabled = false;
 }
 
@@ -75,6 +86,7 @@ function deshabilitarCampos() {
     document.getElementById('nombre').disabled = true;
     document.getElementById('apellido').disabled = true;
     document.getElementById('tipo').disabled = true;
+    document.getElementById('carrera').disabled = true;
     document.getElementById('btnGuardar').disabled = true;
 }
 </script>

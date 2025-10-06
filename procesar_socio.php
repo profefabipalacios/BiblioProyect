@@ -2,14 +2,13 @@
 require_once "includes/conexion.php";
 session_start();
 
-// Validar que venga por POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dni = trim($_POST['dni']);
     $nombre = trim($_POST['nombre']);
     $apellido = trim($_POST['apellido']);
     $tipo = trim($_POST['tipo']);
+    $carrera = isset($_POST['carrera']) && $_POST['carrera'] !== '' ? trim($_POST['carrera']) : null;
 
-    // Verificar que exista el ID de bibliotecaria en sesión
     if (!isset($_SESSION['id_bibliotecaria'])) {
         $_SESSION['mensaje'] = [
             'tipo' => 'error',
@@ -21,20 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $id_bib_registro = $_SESSION['id_bibliotecaria'];
 
-    // Verificar que no esté vacío
     if ($dni === '' || $nombre === '' || $apellido === '' || $tipo === '') {
         $_SESSION['mensaje'] = [
             'tipo' => 'error',
-            'texto' => 'Todos los campos son obligatorios.'
+            'texto' => 'Todos los campos son obligatorios (excepto carrera).'
         ];
         header("Location: dashboard.php?page=socios");
         exit;
     }
 
-    // Insertar socio
     $fecha_alta = date("Y-m-d");
-    $insert = $conn->prepare("INSERT INTO socio (dni, nombre, apellido, tipo_socio, fecha_alta, id_bib_registro) VALUES (?, ?, ?, ?, ?, ?)");
-    $insert->bind_param("sssssi", $dni, $nombre, $apellido, $tipo, $fecha_alta, $id_bib_registro);
+
+    $insert = $conn->prepare("INSERT INTO socio (dni, nombre, apellido, tipo_socio, carrera, fecha_alta, id_bib_registro) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $insert->bind_param("ssssssi", $dni, $nombre, $apellido, $tipo, $carrera, $fecha_alta, $id_bib_registro);
 
     if ($insert->execute()) {
         echo "<script>
