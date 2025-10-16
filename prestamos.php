@@ -2,7 +2,7 @@
 require_once "includes/conexion.php";
 session_start();
 ?>
-
+<!--   -->
 <div class="prestamos-container">
     <h2>Gestión de Préstamos</h2>
 
