@@ -1,22 +1,15 @@
 <?php
 require_once "includes/conexion.php";
+session_start();
 ?>
-
-<?php if (isset($_SESSION['socio_guardado']) && $_SESSION['socio_guardado'] === true): ?>
-    <script>
-        alert("✅ Socio cargado correctamente.");
-    </script>
-    <?php unset($_SESSION['socio_guardado']); ?>
-<?php endif; ?>
 
 <h2>Gestión de Socios</h2>
 
-<form id="formSocios" method="POST" action="procesar_socio.php">
+<form id="formSocios" method="POST" action="procesar_socio.php" class="formulario-socio">
     <label for="dni">DNI:</label>
     <input type="text" id="dni" name="dni" required>
-    <button type="button" id="btnVerificar">Verificar</button>
-
-    <div id="mensaje-verificacion" style="margin-top: 10px;"></div>
+    <button type="button" id="btnVerificar" class="btn-verificar">Verificar</button>
+    <div id="mensaje-verificacion" class="mensaje"></div>
 
     <label for="nombre">Nombre:</label>
     <input type="text" id="nombre" name="nombre" disabled required>
@@ -24,7 +17,7 @@ require_once "includes/conexion.php";
     <label for="apellido">Apellido:</label>
     <input type="text" id="apellido" name="apellido" disabled required>
 
-    <label for="tipo">Seleccione tipo de socio:</label>
+    <label for="tipo">Tipo de socio:</label>
     <select name="tipo" id="tipo" disabled required>
         <option value="">-- Seleccione --</option>
         <option value="Alumno">Alumno</option>
@@ -42,10 +35,90 @@ require_once "includes/conexion.php";
         <option value="TEC. SUPERIOR EN TECNOLOGÍAS DE LOS ALIMENTOS">TEC. SUPERIOR EN TECNOLOGÍAS DE LOS ALIMENTOS</option>
     </select>
 
-    <button type="submit" id="btnGuardar" disabled>Guardar</button>
+    <button type="submit" id="btnGuardar" class="btn-guardar" disabled>Guardar</button>
 </form>
 
+<hr>
+
+<h3>Listado de Socios</h3>
+<div id="tablaSocios"></div>
+
+<style>
+.formulario-socio {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-width: 700px;
+    margin-bottom: 25px;
+}
+.formulario-socio label {
+    font-weight: bold;
+    margin-top: 6px;
+}
+.formulario-socio input, .formulario-socio select {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+.btn-verificar, .btn-guardar {
+    grid-column: span 2;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-verificar {
+    background-color: #4a90e2;
+    color: white;
+}
+.btn-guardar {
+    background-color: #5cb85c;
+    color: white;
+}
+.mensaje {
+    grid-column: span 2;
+    font-size: 14px;
+}
+.tabla-socios {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+.tabla-socios th, .tabla-socios td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+.tabla-socios th {
+    background-color: #f2f2f2;
+}
+.btn-editar {
+    background-color: #ffc107;
+    color: #333;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-eliminar {
+    background-color: #d9534f;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-editar:hover, .btn-eliminar:hover {
+    opacity: 0.8;
+}
+</style>
+
 <script>
+// Al cargar la página, mostrar todos los socios
+window.onload = function() {
+    cargarSocios();
+};
+
 document.getElementById('btnVerificar').addEventListener('click', function () {
     let dni = document.getElementById('dni').value;
     let mensajeDiv = document.getElementById('mensaje-verificacion');
@@ -61,13 +134,15 @@ document.getElementById('btnVerificar').addEventListener('click', function () {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             let respuesta = JSON.parse(xhr.responseText);
-            
+
             if (respuesta.existe) {
                 mensajeDiv.innerHTML = "<p style='color:red;'>El socio ya existe ✅.</p>";
                 deshabilitarCampos();
+                cargarSocioPorDNI(dni);
             } else {
                 mensajeDiv.innerHTML = "<p style='color:green;'>El socio no existe ❌. Complete los datos para registrarlo.</p>";
                 habilitarCampos();
+                cargarSocios();
             }
         }
     };
@@ -81,12 +156,31 @@ function habilitarCampos() {
     document.getElementById('carrera').disabled = false;
     document.getElementById('btnGuardar').disabled = false;
 }
-
 function deshabilitarCampos() {
     document.getElementById('nombre').disabled = true;
     document.getElementById('apellido').disabled = true;
     document.getElementById('tipo').disabled = true;
     document.getElementById('carrera').disabled = true;
     document.getElementById('btnGuardar').disabled = true;
+}
+
+function cargarSocios() {
+    fetch('fetch_socio.php')
+        .then(response => response.text())
+        .then(data => document.getElementById('tablaSocios').innerHTML = data);
+}
+
+function cargarSocioPorDNI(dni) {
+    fetch('fetch_socio.php?dni=' + encodeURIComponent(dni))
+        .then(response => response.text())
+        .then(data => document.getElementById('tablaSocios').innerHTML = data);
+}
+
+function eliminarSocio(id) {
+    if (confirm("¿Está seguro de eliminar este socio?")) {
+        fetch('eliminar_socio.php?id=' + id)
+            .then(response => response.text())
+            .then(() => cargarSocios());
+    }
 }
 </script>

@@ -117,6 +117,12 @@ function agregarInsumo(id, nombre, stock) {
         <td><button type="button" onclick="quitarInsumo(this)">🗑️</button></td>
     `;
     tabla.appendChild(fila);
+
+    // --- Colocar foco, seleccionar texto y limpiar el input ---
+    const buscador = document.getElementById('buscarInsumo');
+    buscador.focus();
+    buscador.select();
+    buscador.value = "";
 }
 
 function quitarInsumo(btn) {

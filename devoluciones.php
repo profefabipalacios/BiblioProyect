@@ -7,7 +7,7 @@ require_once "includes/conexion.php";
 
     <!-- Buscador -->
     <div class="busqueda">
-        <input type="text" id="buscar" placeholder="Buscar por DNI o nombre del item">
+        <input type="text" id="buscar" placeholder="Buscar por DNI o nombre del ítem">
         <button id="btnBuscar"><i class="fas fa-search"></i></button>
     </div>
 
@@ -17,7 +17,7 @@ require_once "includes/conexion.php";
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Item</th>
+                    <th>Ítem</th>
                     <th>DNI Socio</th>
                     <th>Bibliotecaria</th>
                     <th>Fecha Préstamo</th>
@@ -36,7 +36,7 @@ require_once "includes/conexion.php";
 </div>
 
 <script>
-// Función para cargar la tabla de préstamos
+// Función para cargar los préstamos activos o devueltos
 function cargarPrestamos(busqueda = '') {
     fetch('fetch_devoluciones.php?buscar=' + encodeURIComponent(busqueda))
         .then(response => response.json())
@@ -81,7 +81,8 @@ function cargarPrestamos(busqueda = '') {
                 `;
                 tbody.innerHTML += fila;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar préstamos:", error));
 }
 
 // Función para registrar devolución
@@ -97,6 +98,10 @@ function registrarDevolucion(idPrestamo) {
     .then(data => {
         alert(data.mensaje);
         cargarPrestamos(document.getElementById('buscar').value);
+    })
+    .catch(error => {
+        console.error("Error al registrar devolución:", error);
+        alert("Error al registrar la devolución.");
     });
 }
 
@@ -119,6 +124,55 @@ window.onload = () => cargarPrestamos();
 </script>
 
 <style>
+.prestamos-container {
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.busqueda {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.busqueda input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.busqueda button {
+    background-color: #2196F3;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.busqueda button:hover {
+    background-color: #1976D2;
+}
+
+.tabla-prestamos table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla-prestamos th, .tabla-prestamos td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.tabla-prestamos th {
+    background-color: #f2f2f2;
+}
+
 .btn-devolucion {
     background-color: #4CAF50;
     color: white;
@@ -127,6 +181,7 @@ window.onload = () => cargarPrestamos();
     cursor: pointer;
     border-radius: 5px;
 }
+
 .btn-devolucion:hover {
     background-color: #45a049;
 }
