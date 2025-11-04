@@ -1,6 +1,14 @@
 <?php
 require_once "includes/conexion.php";
 session_start();
+
+// Cargar carreras desde la BD
+$queryCarreras = "SELECT id_carrera, nombre FROM carrera ORDER BY nombre ASC";
+$resultCarreras = $conn->query($queryCarreras);
+$carreras = [];
+while ($row = $resultCarreras->fetch_assoc()) {
+    $carreras[] = $row;
+}
 ?>
 
 <h2>Gestión de Socios</h2>
@@ -24,15 +32,12 @@ session_start();
         <option value="Docente">Docente</option>
     </select>
 
-    <label for="carrera">Carrera (opcional):</label>
-    <select name="carrera" id="carrera" disabled>
+    <label for="id_carrera">Carrera (opcional):</label>
+    <select name="id_carrera" id="id_carrera" disabled>
         <option value="">-- Sin carrera --</option>
-        <option value="PROF. DE INGLÉS">PROF. DE INGLÉS</option>
-        <option value="PROF. DE EDUCACIÓN SECUNDARIA EN MATEMÁTICA">PROF. DE EDUCACIÓN SECUNDARIA EN MATEMÁTICA</option>
-        <option value="PROF. DE EDUCACIÓN SECUNDARIA EN INFORMÁTICA">PROF. DE EDUCACIÓN SECUNDARIA EN INFORMÁTICA</option>
-        <option value="PROF. DE EDUCACIÓN SECUNDARIA EN CIENCIAS DE LA ADMINISTRACIÓN">PROF. DE EDUCACIÓN SECUNDARIA EN CIENCIAS DE LA ADMINISTRACIÓN</option>
-        <option value="TEC. EN CIENCIA DE DATOS E INTELIGENCIA ARTIFICIAL">TEC. EN CIENCIA DE DATOS E INTELIGENCIA ARTIFICIAL</option>
-        <option value="TEC. SUPERIOR EN TECNOLOGÍAS DE LOS ALIMENTOS">TEC. SUPERIOR EN TECNOLOGÍAS DE LOS ALIMENTOS</option>
+        <?php foreach ($carreras as $c): ?>
+            <option value="<?= $c['id_carrera'] ?>"><?= htmlspecialchars($c['nombre']) ?></option>
+        <?php endforeach; ?>
     </select>
 
     <button type="submit" id="btnGuardar" class="btn-guardar" disabled>Guardar</button>
@@ -62,10 +67,11 @@ session_start();
 }
 .btn-verificar, .btn-guardar {
     grid-column: span 2;
-    padding: 8px;
+    padding: 10px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
 }
 .btn-verificar {
     background-color: #4a90e2;
@@ -83,6 +89,7 @@ session_start();
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 .tabla-socios th, .tabla-socios td {
     padding: 10px;
@@ -91,30 +98,40 @@ session_start();
 }
 .tabla-socios th {
     background-color: #f2f2f2;
+    color: #333;
+}
+.tabla-socios tr:nth-child(even) {
+    background-color: #fafafa;
 }
 .btn-editar {
     background-color: #ffc107;
     color: #333;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: bold;
 }
 .btn-eliminar {
     background-color: #d9534f;
     color: white;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: bold;
 }
 .btn-editar:hover, .btn-eliminar:hover {
-    opacity: 0.8;
+    opacity: 0.9;
+}
+.acciones {
+    display: flex;
+    gap: 6px;
 }
 </style>
 
 <script>
-// Al cargar la página, mostrar todos los socios
+// Mostrar todos los socios al cargar
 window.onload = function() {
     cargarSocios();
 };
@@ -153,14 +170,14 @@ function habilitarCampos() {
     document.getElementById('nombre').disabled = false;
     document.getElementById('apellido').disabled = false;
     document.getElementById('tipo').disabled = false;
-    document.getElementById('carrera').disabled = false;
+    document.getElementById('id_carrera').disabled = false;
     document.getElementById('btnGuardar').disabled = false;
 }
 function deshabilitarCampos() {
     document.getElementById('nombre').disabled = true;
     document.getElementById('apellido').disabled = true;
     document.getElementById('tipo').disabled = true;
-    document.getElementById('carrera').disabled = true;
+    document.getElementById('id_carrera').disabled = true;
     document.getElementById('btnGuardar').disabled = true;
 }
 
