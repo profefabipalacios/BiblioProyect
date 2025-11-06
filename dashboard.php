@@ -53,6 +53,9 @@ if (!isset($_SESSION['usuario'])) {
                 case 'editar_socio':
                     include("editar_socio.php");
                     break;
+                case 'alta_insumo':
+                    include("alta_insumo.php");
+                    break;
                 default:
                     echo "<p>Seleccione una opción del menú.</p>";
             }
