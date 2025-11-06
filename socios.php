@@ -2,11 +2,10 @@
 require_once "includes/conexion.php";
 session_start();
 
-// Cargar carreras desde la BD
-$queryCarreras = "SELECT id_carrera, nombre FROM carrera ORDER BY nombre ASC";
-$resultCarreras = $conn->query($queryCarreras);
+// Cargar todas las carreras para el selector
 $carreras = [];
-while ($row = $resultCarreras->fetch_assoc()) {
+$result = $conn->query("SELECT id_carrera, nombre FROM carrera ORDER BY nombre ASC");
+while ($row = $result->fetch_assoc()) {
     $carreras[] = $row;
 }
 ?>
@@ -67,18 +66,18 @@ while ($row = $resultCarreras->fetch_assoc()) {
 }
 .btn-verificar, .btn-guardar {
     grid-column: span 2;
-    padding: 10px;
+    padding: 8px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
 }
 .btn-verificar {
-    background-color: #4a90e2;
+    background-color: #007bff;
     color: white;
 }
 .btn-guardar {
-    background-color: #5cb85c;
+    background-color: #28a745;
     color: white;
 }
 .mensaje {
@@ -89,7 +88,8 @@ while ($row = $resultCarreras->fetch_assoc()) {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
 .tabla-socios th, .tabla-socios td {
     padding: 10px;
@@ -97,41 +97,38 @@ while ($row = $resultCarreras->fetch_assoc()) {
     text-align: left;
 }
 .tabla-socios th {
-    background-color: #f2f2f2;
+    background-color: #f8f9fa;
     color: #333;
 }
 .tabla-socios tr:nth-child(even) {
-    background-color: #fafafa;
+    background-color: #f2f2f2;
+}
+.acciones {
+    display: flex;
+    gap: 8px;
 }
 .btn-editar {
     background-color: #ffc107;
     color: #333;
-    padding: 6px 12px;
+    padding: 5px 10px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
 }
 .btn-eliminar {
-    background-color: #d9534f;
+    background-color: #dc3545;
     color: white;
-    padding: 6px 12px;
+    padding: 5px 10px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
 }
 .btn-editar:hover, .btn-eliminar:hover {
-    opacity: 0.9;
-}
-.acciones {
-    display: flex;
-    gap: 6px;
+    opacity: 0.8;
 }
 </style>
 
 <script>
-// Mostrar todos los socios al cargar
 window.onload = function() {
     cargarSocios();
 };
@@ -193,9 +190,9 @@ function cargarSocioPorDNI(dni) {
         .then(data => document.getElementById('tablaSocios').innerHTML = data);
 }
 
-function eliminarSocio(id) {
+function eliminarSocio(dni) {
     if (confirm("¿Está seguro de eliminar este socio?")) {
-        fetch('eliminar_socio.php?id=' + id)
+        fetch('eliminar_socio.php?dni=' + dni)
             .then(response => response.text())
             .then(() => cargarSocios());
     }

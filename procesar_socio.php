@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre']);
     $apellido = trim($_POST['apellido']);
     $tipo = trim($_POST['tipo']);
-    $id_carrera = !empty($_POST['id_carrera']) ? intval($_POST['id_carrera']) : null;
+    $id_carrera = isset($_POST['id_carrera']) && $_POST['id_carrera'] !== '' ? intval($_POST['id_carrera']) : null;
 
     if (!isset($_SESSION['id_bibliotecaria'])) {
         $_SESSION['mensaje'] = [
@@ -31,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $fecha_alta = date("Y-m-d");
 
-    $insert = $conn->prepare("INSERT INTO socio (dni, nombre, apellido, tipo_socio, id_carrera, fecha_alta, id_bib_registro) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $insert = $conn->prepare("
+    INSERT INTO socio (dni, nombre, apellido, tipo_socio, id_carrera, fecha_alta, id_bib_registro) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)");
     $insert->bind_param("ssssisi", $dni, $nombre, $apellido, $tipo, $id_carrera, $fecha_alta, $id_bib_registro);
 
     if ($insert->execute()) {

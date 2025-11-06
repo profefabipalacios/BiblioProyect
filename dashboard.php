@@ -50,6 +50,9 @@ if (!isset($_SESSION['usuario'])) {
                 case 'devoluciones':
                     include("devoluciones.php");
                     break;
+                case 'editar_socio':
+                    include("editar_socio.php");
+                    break;
                 default:
                     echo "<p>Seleccione una opción del menú.</p>";
             }
