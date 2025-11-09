@@ -191,10 +191,25 @@ function cargarSocioPorDNI(dni) {
 }
 
 function eliminarSocio(dni) {
-    if (confirm("¿Está seguro de eliminar este socio?")) {
-        fetch('eliminar_socio.php?dni=' + dni)
-            .then(response => response.text())
-            .then(() => cargarSocios());
-    }
+    if (!confirm("¿Está seguro de eliminar este socio?")) return;
+
+    fetch('eliminar_socio.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'dni=' + encodeURIComponent(dni)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.mensaje);
+        if (data.ok) {
+            cargarSocios();
+        }
+    })
+    .catch(error => {
+        alert("Error de red al intentar eliminar.");
+        console.error(error);
+    });
 }
 </script>

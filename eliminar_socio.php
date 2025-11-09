@@ -1,30 +1,45 @@
 <?php
 require_once "includes/conexion.php";
 
-if (!isset($_GET['dni'])) {
-    echo "Error: DNI no recibido.";
+header("Content-Type: application/json");
+
+if (!isset($_POST['dni'])) {
+    echo json_encode(["ok" => false, "mensaje" => "DNI no recibido."]);
     exit;
 }
 
-$dni = $_GET['dni'];
+$dni = $_POST['dni'];
 
-// Verificar si tiene préstamos activos
-$check = $conn->prepare("SELECT * FROM prestamo WHERE dni_socio = ? AND estado = 'Prestado'");
+// Verificar préstamos activos
+$check = $conn->prepare("
+    SELECT id_prestamo 
+    FROM prestamo 
+    WHERE dni_socio = ? 
+      AND estado IN ('Prestado', 'Retrasado')
+");
 $check->bind_param("s", $dni);
 $check->execute();
 $res = $check->get_result();
 
 if ($res->num_rows > 0) {
-    echo "No se puede eliminar: el socio tiene préstamos activos.";
+    echo json_encode([
+        "ok" => false,
+        "mensaje" => "No se puede eliminar: el socio tiene préstamos activos."
+    ]);
     exit;
 }
 
-$stmt = $conn->prepare("DELETE FROM socio WHERE dni = ?");
-$stmt->bind_param("s", $dni);
+$del = $conn->prepare("DELETE FROM socio WHERE dni = ?");
+$del->bind_param("s", $dni);
 
-if ($stmt->execute()) {
-    echo "Socio eliminado correctamente.";
+if ($del->execute()) {
+    echo json_encode([
+        "ok" => true,
+        "mensaje" => "✅ Socio eliminado correctamente."
+    ]);
 } else {
-    echo "Error al eliminar el socio.";
+    echo json_encode([
+        "ok" => false,
+        "mensaje" => "❌ Error al eliminar el socio."
+    ]);
 }
-?>
