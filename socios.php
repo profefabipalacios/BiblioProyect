@@ -191,25 +191,21 @@ function cargarSocioPorDNI(dni) {
 }
 
 function eliminarSocio(dni) {
-    if (!confirm("¿Está seguro de eliminar este socio?")) return;
+    if (!confirm("¿Desactivar este socio? Ya no podrá realizar préstamos.")) return;
 
     fetch('eliminar_socio.php', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'dni=' + encodeURIComponent(dni)
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         alert(data.mensaje);
-        if (data.ok) {
-            cargarSocios();
-        }
+        if (data.ok) cargarSocios();
     })
-    .catch(error => {
-        alert("Error de red al intentar eliminar.");
-        console.error(error);
+    .catch(err => {
+        alert("⚠️ Error de red.");
+        console.error(err);
     });
 }
 </script>
