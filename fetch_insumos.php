@@ -1,29 +1,36 @@
 <?php
 require_once "includes/conexion.php";
 
-$tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
-$buscar = isset($_GET['buscar']) ? $_GET['buscar'] : '';
+$tipo = $_GET['tipo'] ?? '';
+$buscar = $_GET['buscar'] ?? '';
 
+// Nueva consulta acorde a la estructura ACTUALIZADA de inventario
 $query = "SELECT * FROM inventario WHERE 1";
 $params = [];
 $types = "";
 
-// Filtrar por tipo si se seleccionó
-if ($tipo) {
+// Filtrar por tipo
+if ($tipo !== '') {
     $query .= " AND tipo_item = ?";
     $params[] = $tipo;
     $types .= "s";
 }
 
-// Filtrar por búsqueda si hay texto
-if ($buscar) {
-    $query .= " AND (id_item LIKE ? OR nombre LIKE ? OR tipo_item LIKE ? OR autor_marca LIKE ?)";
-    $buscarParam = "%$buscar%";
-    $params = array_merge($params, [$buscarParam, $buscarParam, $buscarParam, $buscarParam]);
-    $types .= str_repeat("s", 4);
+// Filtro de búsqueda
+if ($buscar !== '') {
+
+    // Importante: nombre → nombre_titulo
+    $query .= " AND (
+        id_item LIKE ? OR 
+        nombre_titulo LIKE ? OR
+        autor_marca LIKE ?
+    )";
+
+    $buscarLike = "%$buscar%";
+    $params = array_merge($params, [$buscarLike, $buscarLike, $buscarLike]);
+    $types .= "sss";
 }
 
-// Preparar y ejecutar la consulta
 $stmt = $conn->prepare($query);
 
 if (!empty($params)) {
@@ -32,13 +39,12 @@ if (!empty($params)) {
 
 $stmt->execute();
 $result = $stmt->get_result();
-$insumos = [];
 
+$insumos = [];
 while ($row = $result->fetch_assoc()) {
     $insumos[] = $row;
 }
 
-// Devolver los datos en JSON
 header('Content-Type: application/json');
 echo json_encode($insumos);
 ?>

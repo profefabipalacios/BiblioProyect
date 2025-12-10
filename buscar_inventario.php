@@ -11,10 +11,14 @@ $query = "SELECT * FROM inventario
 $result = $conn->query($query);
 $data = [];
 
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data[] = $row;
-    }
+if (isset($_GET["id_item"])) {
+    $id = intval($_GET["id_item"]);
+    $stmt = $conn->prepare("SELECT * FROM inventario WHERE id_item = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    echo json_encode($result->fetch_assoc());
+    exit;
 }
 
 header('Content-Type: application/json');

@@ -98,6 +98,21 @@ function buscarInsumo() {
     });
 }
 
+// --- Agrega automáticamente el insumo si viene desde insumos.php ---
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id_item = urlParams.get('id_item');
+
+    if (id_item) {
+        fetch("buscar_inventario.php?id_item=" + encodeURIComponent(id_item))
+            .then(resp => resp.json())
+            .then(item => {
+                if (item && item.id_item) {
+                    agregarInsumo(item.id_item, item.nombre, item.stock_disponible);
+                }
+            });
+    }
+};
 // --- Agregar insumo a tabla de selección ---
 function agregarInsumo(id, nombre, stock) {
     const tabla = document.querySelector("#tablaSeleccionados tbody");

@@ -10,7 +10,7 @@ while ($row = $result->fetch_assoc()) {
 }
 ?>
 
-<h2>Gestión de Socios</h2>
+<h2>Agregar Nuevo Socio</h2>
 
 <form id="formSocios" method="POST" action="procesar_socio.php" class="formulario-socio">
     <label for="dni">DNI:</label>
@@ -41,11 +41,6 @@ while ($row = $result->fetch_assoc()) {
 
     <button type="submit" id="btnGuardar" class="btn-guardar" disabled>Guardar</button>
 </form>
-
-<hr>
-
-<h3>Listado de Socios</h3>
-<div id="tablaSocios"></div>
 
 <style>
 .formulario-socio {
@@ -84,55 +79,10 @@ while ($row = $result->fetch_assoc()) {
     grid-column: span 2;
     font-size: 14px;
 }
-.tabla-socios {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-.tabla-socios th, .tabla-socios td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-.tabla-socios th {
-    background-color: #f8f9fa;
-    color: #333;
-}
-.tabla-socios tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-.acciones {
-    display: flex;
-    gap: 8px;
-}
-.btn-editar {
-    background-color: #ffc107;
-    color: #333;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-.btn-eliminar {
-    background-color: #dc3545;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-.btn-editar:hover, .btn-eliminar:hover {
-    opacity: 0.8;
-}
 </style>
 
 <script>
-window.onload = function() {
-    cargarSocios();
-};
-
+// ----------- VERIFICAR DNI ----------
 document.getElementById('btnVerificar').addEventListener('click', function () {
     let dni = document.getElementById('dni').value;
     let mensajeDiv = document.getElementById('mensaje-verificacion');
@@ -145,24 +95,24 @@ document.getElementById('btnVerificar').addEventListener('click', function () {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "verificar_socio.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             let respuesta = JSON.parse(xhr.responseText);
 
             if (respuesta.existe) {
-                mensajeDiv.innerHTML = "<p style='color:red;'>El socio ya existe ✅.</p>";
+                mensajeDiv.innerHTML = "<p style='color:red;'>El socio ya existe.</p>";
                 deshabilitarCampos();
-                cargarSocioPorDNI(dni);
             } else {
-                mensajeDiv.innerHTML = "<p style='color:green;'>El socio no existe ❌. Complete los datos para registrarlo.</p>";
+                mensajeDiv.innerHTML = "<p style='color:green;'>El socio no existe. Puede registrarlo.</p>";
                 habilitarCampos();
-                cargarSocios();
             }
         }
     };
     xhr.send("dni=" + encodeURIComponent(dni));
 });
 
+// ----------- FUNCIONES ----------
 function habilitarCampos() {
     document.getElementById('nombre').disabled = false;
     document.getElementById('apellido').disabled = false;
@@ -176,36 +126,5 @@ function deshabilitarCampos() {
     document.getElementById('tipo').disabled = true;
     document.getElementById('id_carrera').disabled = true;
     document.getElementById('btnGuardar').disabled = true;
-}
-
-function cargarSocios() {
-    fetch('fetch_socio.php')
-        .then(response => response.text())
-        .then(data => document.getElementById('tablaSocios').innerHTML = data);
-}
-
-function cargarSocioPorDNI(dni) {
-    fetch('fetch_socio.php?dni=' + encodeURIComponent(dni))
-        .then(response => response.text())
-        .then(data => document.getElementById('tablaSocios').innerHTML = data);
-}
-
-function eliminarSocio(dni) {
-    if (!confirm("¿Desactivar este socio? Ya no podrá realizar préstamos.")) return;
-
-    fetch('eliminar_socio.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'dni=' + encodeURIComponent(dni)
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.mensaje);
-        if (data.ok) cargarSocios();
-    })
-    .catch(err => {
-        alert("⚠️ Error de red.");
-        console.error(err);
-    });
 }
 </script>

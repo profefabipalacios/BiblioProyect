@@ -124,6 +124,36 @@ header .usuario a:hover {
 }
 
 /* --- Panel lateral --- */
+
+/* SUBMENÚ */
+.submenu {
+    position: relative;
+}
+
+.submenu-opciones {
+    display: none;
+    position: absolute;
+    background: #444;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    width: 200px;
+    border-radius: 5px;
+    z-index: 999;
+}
+
+.submenu-opciones li a {
+    display: block;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.submenu-opciones li a:hover {
+    background: #666;
+}
+/* FIN SUBMENÚ */
+
 nav {
     width: 220px;
     background-color: rgba(0, 0, 0, 0.85);
