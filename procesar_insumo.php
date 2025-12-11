@@ -2,71 +2,58 @@
 session_start();
 require_once "includes/conexion.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if ($_SERVER["REQUEST_METHOD"] !== "POST") exit;
 
-    // Validación de sesión
-    if (!isset($_SESSION["id_bibliotecaria"])) {
-        echo "<script>
-            alert('❌ Error: No se ha identificado al bibliotecario.');
-            window.location.href = 'login.php';
-        </script>";
-        exit;
-    }
+// VALIDACIÓN
+if (!isset($_SESSION["id_bibliotecaria"])) {
+    echo "<script>alert('Error de sesión'); window.location='login.php';</script>";
+    exit;
+}
 
-    // Sanitización y validación de datos
-    $nombre        = trim($_POST["nombre"] ?? '');
-    $tipo_item     = trim($_POST["tipo_item"] ?? '');
-    $autor_marca   = trim($_POST["autor_marca"] ?? '');
-    $stock_total   = intval($_POST["stock_total"] ?? 0);
+$tipo_item = $_POST["tipo_item"];
+$nombre    = $_POST["nombre_titulo"];
+$autor     = $_POST["autor_marca"];
+$stock     = intval($_POST["stock_total"]);
+$id_biblio = $_SESSION["id_bibliotecaria"];
 
-    // Validaciones básicas
-    if ($nombre === '' || $tipo_item === '' || $stock_total <= 0) {
-        echo "<script>
-            alert('⚠️ Complete todos los campos obligatorios correctamente.');
-            window.location.href = 'dashboard.php?page=alta_insumo';
-        </script>";
-        exit;
-    }
+if ($tipo_item === "Libro") {
+    $isbn     = $_POST["ISBN"];
+    $edicion  = $_POST["edicion"];
+    $editorial= $_POST["editorial"];
+    $anio     = $_POST["anio_pub"];
 
-    $id_bibliotecaria = $_SESSION["id_bibliotecaria"];
-    $stock_disponible = $stock_total;
-
-    // Preparar sentencia SQL
-    $sql = "INSERT INTO inventario (
-                nombre, tipo_item, autor_marca, stock_total, stock_disponible, id_bibliotecaria_registro
-            ) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO inventario
+            (nombre_titulo, tipo_item, autor_marca, ISBN, edicion, editorial, anio_pub,
+             stock_total, stock_disponible, id_bibliotecaria_registro)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        echo "<script>
-            alert('❌ Error al preparar la consulta: " . addslashes($conn->error) . "');
-            window.location.href = 'dashboard.php?page=alta_insumo';
-        </script>";
-        exit;
-    }
-
-    $stmt->bind_param("sssiii",
-        $nombre,
-        $tipo_item,
-        $autor_marca,
-        $stock_total,
-        $stock_disponible,
-        $id_bibliotecaria
+    $stmt->bind_param(
+        "ssssssiiii",
+        $nombre, $tipo_item, $autor, $isbn, $edicion, $editorial, $anio,
+        $stock, $stock, $id_biblio
     );
+}
 
-    // Ejecutar y responder
-    if ($stmt->execute()) {
-        echo "<script>
-            alert('✅ Insumo registrado correctamente.');
-            window.location.href = 'dashboard.php?page=insumos';
-        </script>";
-    } else {
-        echo "<script>
-            alert('❌ Error al guardar el insumo: " . addslashes($stmt->error) . "');
-            window.location.href = 'dashboard.php?page=alta_insumo';
-        </script>";
-    }
+else if ($tipo_item === "Insumo Tecnologico") {
 
-    $stmt->close();
+    $sql = "INSERT INTO inventario
+            (nombre_titulo, tipo_item, autor_marca,
+             stock_total, stock_disponible, id_bibliotecaria_registro)
+            VALUES (?, ?, ?, ?, ?, ?)";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "sssiii",
+        $nombre, $tipo_item, $autor, $stock, $stock, $id_biblio
+    );
+}
+
+if ($stmt->execute()) {
+    echo "<script>alert('Insumo registrado correctamente'); 
+    window.location='dashboard.php?page=insumos';</script>";
+} else {
+    echo "<script>alert('Error al guardar: " . addslashes($stmt->error) . "');
+    window.location='dashboard.php?page=alta_insumo';</script>";
 }
 ?>

@@ -1,41 +1,40 @@
 <?php
 session_start();
 require_once "includes/conexion.php";
-?>
 
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+?>
 <div class="insumos-container">
     <h2>Gestión de Insumos</h2>
 
-    <!-- Botones tipo de insumo + nuevo insumo -->
+    <!-- Botones tipo de insumo -->
     <div class="tipo-insumo-buttons">
         <button id="btnLibros" class="tipo-btn"><i class="fas fa-book"></i> Libros</button>
-        <button id="btnTecnologico" class="tipo-btn"><i class="fas fa-desktop"></i> Insumos Tecnológicos</button>
-        <a href="dashboard.php?page=alta_insumo" class="tipo-btn" id="btnNuevoInsumo">
-            <i class="fas fa-plus"></i> Nuevo Insumo
-        </a>
+        <button id="btnTecno" class="tipo-btn"><i class="fas fa-desktop"></i> Insumos Tecnológicos</button>
+        <a href="dashboard.php?page=alta_insumo" class="tipo-btn"><i class="fas fa-plus"></i> Nuevo Insumo</a>
     </div>
 
     <!-- Buscador -->
     <div class="busqueda">
-        <input type="text" id="buscar" placeholder="Buscar por ID, nombre, autor/marca">
+        <input type="text" id="buscar" placeholder="Buscar por ID, título, autor o ISBN">
         <button id="btnBuscar"><i class="fas fa-search"></i></button>
     </div>
 
-    <!-- Tabla dinámica -->
-    <div class="tabla-insumos">
-        <table id="tablaInsumos">
-            <thead id="theadInsumos"></thead>
-            <tbody id="tbodyInsumos">
-                <tr><td style='text-align:center;'>Seleccione un tipo para ver los insumos</td></tr>
-            </tbody>
-        </table>
-    </div>
+    <!-- Tabla -->
+    <table id="tablaInsumos">
+        <thead id="theadInsumos"></thead>
+        <tbody id="tbodyInsumos">
+            <tr><td style="text-align:center;">Seleccione un tipo de insumo</td></tr>
+        </tbody>
+    </table>
 </div>
 
 <script>
-let tipoActual = '';
+let tipoActual = "";
 
-function cargarTabla(tipo, busqueda = '') {
+function cargarTabla(tipo, busqueda = "") {
+
     tipoActual = tipo;
 
     fetch("fetch_insumos.php?tipo=" + encodeURIComponent(tipo) + "&buscar=" + encodeURIComponent(busqueda))
@@ -46,9 +45,9 @@ function cargarTabla(tipo, busqueda = '') {
 
             tbody.innerHTML = "";
 
-            // ================================
-            // TABLA PARA LIBROS
-            // ================================
+            // ============================
+            // TABLA LIBROS
+            // ============================
             if (tipo === "Libro") {
                 thead.innerHTML = `
                     <tr>
@@ -59,14 +58,14 @@ function cargarTabla(tipo, busqueda = '') {
                         <th>Edición</th>
                         <th>Editorial</th>
                         <th>Año</th>
-                        <th>Stock Total</th>
+                        <th>Total</th>
                         <th>Disponible</th>
                         <th>Acción</th>
                     </tr>
                 `;
 
                 if (data.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='10' style='text-align:center;'>No se encontraron libros.</td></tr>";
+                    tbody.innerHTML = "<tr><td colspan='10' style='text-align:center;'>No hay libros.</td></tr>";
                     return;
                 }
 
@@ -85,32 +84,31 @@ function cargarTabla(tipo, busqueda = '') {
                             <td>${item.stock_total}</td>
                             <td>${item.stock_disponible}</td>
                             <td>
-                                <button class="btn-prestar" onclick="prestar(${item.id_item})" ${disabled}>
-                                    Prestar
-                                </button>
+                                <button class="btn-prestar" onclick="prestar(${item.id_item})" ${disabled}>Prestar</button>
                             </td>
                         </tr>
                     `;
                 });
             }
 
-            // ================================
-            // TABLA PARA INSUMOS TECNOLÓGICOS
-            // ================================
+            // ============================
+            // TABLA INSUMOS TECNOLÓGICOS
+            // ============================
             if (tipo === "Insumo Tecnologico") {
+
                 thead.innerHTML = `
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Marca</th>
-                        <th>Stock Total</th>
+                        <th>Total</th>
                         <th>Disponible</th>
                         <th>Acción</th>
                     </tr>
                 `;
 
                 if (data.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No se encontraron insumos tecnológicos.</td></tr>";
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No hay insumos tecnológicos.</td></tr>";
                     return;
                 }
 
@@ -125,53 +123,47 @@ function cargarTabla(tipo, busqueda = '') {
                             <td>${item.stock_total}</td>
                             <td>${item.stock_disponible}</td>
                             <td>
-                                <button class="btn-prestar" onclick="prestar(${item.id_item})" ${disabled}>
-                                    Prestar
-                                </button>
+                                <button class="btn-prestar" onclick="prestar(${item.id_item})" ${disabled}>Prestar</button>
                             </td>
                         </tr>
                     `;
                 });
             }
         })
-        .catch(() => alert("Error al cargar los datos."));
+        .catch(err => alert("Error cargando datos"));
 }
 
-// Redirige al préstamo con el ID seleccionado
+// Redirige al préstamo
 function prestar(id) {
     window.location.href = "dashboard.php?page=prestamos&id_item=" + id;
 }
 
-// Eventos de botones
-document.getElementById("btnLibros").addEventListener("click", () => cargarTabla("Libro"));
-document.getElementById("btnTecnologico").addEventListener("click", () => cargarTabla("Insumo Tecnologico"));
+// Eventos
+document.getElementById("btnLibros").onclick = () => cargarTabla("Libro");
+document.getElementById("btnTecno").onclick = () => cargarTabla("Insumo Tecnologico");
 
-document.getElementById("btnBuscar").addEventListener("click", () => {
-    if (!tipoActual) return alert("Seleccione un tipo de insumo.");
+document.getElementById("btnBuscar").onclick = () => {
+    if (!tipoActual) return alert("Seleccione un tipo.");
     cargarTabla(tipoActual, document.getElementById("buscar").value);
-});
-
-document.getElementById("buscar").addEventListener("keyup", e => {
-    if (e.key === "Enter" && tipoActual) {
-        cargarTabla(tipoActual, e.target.value);
-    }
-});
+};
 </script>
 
 <style>
+#tablaInsumos {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+    background: white;
+}
+#tablaInsumos th, #tablaInsumos td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
 .btn-prestar {
-    background-color: #28a745;
+    background: green;
     color: white;
+    padding: 5px 12px;
     border: none;
-    padding: 5px 10px;
     border-radius: 6px;
-    cursor: pointer;
-}
-.btn-prestar:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-}
-.btn-prestar:hover:not(:disabled) {
-    opacity: 0.85;
 }
 </style>
