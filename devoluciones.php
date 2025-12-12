@@ -5,13 +5,25 @@ require_once "includes/conexion.php";
 <div class="prestamos-container">
     <h2>Gestión de Devoluciones</h2>
 
+    <!-- Botones -->
+    <div style="margin-bottom:15px; display:flex; gap:10px;">
+        <button onclick="cargarPrestamos()" style="padding:8px 12px; background:#1976D2; color:white; border:none; border-radius:5px;">
+            Préstamos Activos
+        </button>
+
+        <button onclick="window.location.href='dashboard.php?page=devoluciones_historial'"
+            style="padding:8px 12px; background:#555; color:white; border:none; border-radius:5px;">
+            Historial de Devoluciones
+        </button>
+    </div>
+
     <!-- Buscador -->
     <div class="busqueda">
         <input type="text" id="buscar" placeholder="Buscar por DNI o nombre del ítem">
         <button id="btnBuscar"><i class="fas fa-search"></i></button>
     </div>
 
-    <!-- Tabla de préstamos -->
+    <!-- Tabla -->
     <div class="tabla-prestamos">
         <table id="tablaPrestamos">
             <thead>
@@ -22,167 +34,82 @@ require_once "includes/conexion.php";
                     <th>Bibliotecaria</th>
                     <th>Fecha Préstamo</th>
                     <th>Hora Préstamo</th>
-                    <th>Fecha Devolución</th>
-                    <th>Hora Devolución</th>
                     <th>Estado</th>
                     <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="10" style="text-align:center;">Realice una búsqueda para ver los préstamos</td></tr>
+                <tr><td colspan="8" style="text-align:center;">Cargando préstamos activos...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-// Función para cargar los préstamos activos o devueltos
-function cargarPrestamos(busqueda = '') {
-    fetch('fetch_devoluciones.php?buscar=' + encodeURIComponent(busqueda))
-        .then(response => response.json())
+// --------------------------------------
+// CARGAR PRÉSTAMOS ACTIVOS
+// --------------------------------------
+function cargarPrestamos(busqueda = "") {
+    fetch("fetch_devoluciones.php?estado=activo&buscar=" + encodeURIComponent(busqueda))
+        .then(res => res.json())
         .then(data => {
             const tbody = document.querySelector("#tablaPrestamos tbody");
             tbody.innerHTML = "";
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No se encontraron préstamos</td></tr>';
+                tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No hay préstamos activos</td></tr>";
                 return;
             }
 
-            data.forEach(item => {
-                let iconoEstado = '';
-                let accion = '';
+            data.forEach(p => {
+                const retrasado = (p.estado === "Retrasado");
 
-                if (item.estado === "Prestado" || item.estado === "Retrasado") {
-                    iconoEstado = `<span style="color:${item.estado === "Retrasado" ? 'red' : 'orange'};">
-                        ${item.estado === "Retrasado" ? '⏳ Retrasado' : '🔴 Pendiente'}
-                    </span>`;
-                    accion = `<button onclick="registrarDevolucion(${item.id_prestamo})" class="btn-devolucion">
-                                Registrar Devolución
-                              </button>`;
-                } else if (item.estado === "Devuelto") {
-                    iconoEstado = '<span style="color:green;">✅ Devuelto</span>';
-                    accion = '-';
-                }
-
-                const fila = `
+                tbody.innerHTML += `
                     <tr>
-                        <td>${item.id_prestamo}</td>
-                        <td>${item.nombre_item}</td>
-                        <td>${item.dni_socio}</td>
-                        <td>${item.nombre_bibliotecaria}</td>
-                        <td>${item.fecha_prestamo}</td>
-                        <td>${item.hora_prestamo}</td>
-                        <td>${item.fecha_devolucion ?? '-'}</td>
-                        <td>${item.hora_devolucion ?? '-'}</td>
-                        <td>${iconoEstado}</td>
-                        <td>${accion}</td>
+                        <td>${p.id_prestamo}</td>
+                        <td>${p.nombre_item}</td>
+                        <td>${p.dni_socio}</td>
+                        <td>${p.nombre_bibliotecaria}</td>
+                        <td>${p.fecha_prestamo}</td>
+                        <td>${p.hora_prestamo}</td>
+                        <td style="color:${retrasado?'red':'orange'}; font-weight:bold;">
+                            ${retrasado ? "⏳ Retrasado" : "🔴 Pendiente"}
+                        </td>
+                        <td>
+                            <button onclick="registrarDevolucion(${p.id_prestamo})"
+                                class="btn-devolucion">Registrar Devolución</button>
+                        </td>
                     </tr>
                 `;
-                tbody.innerHTML += fila;
             });
-        })
-        .catch(error => console.error("Error al cargar préstamos:", error));
+        });
 }
 
-// Función para registrar devolución
-function registrarDevolucion(idPrestamo) {
-    if (!confirm("¿Confirmar devolución del ítem?")) return;
+document.getElementById("btnBuscar").onclick = () =>
+    cargarPrestamos(document.getElementById("buscar").value);
 
-    fetch('registrar_devolucion.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'id_prestamo=' + idPrestamo
+document.getElementById("buscar").addEventListener("keyup", e => {
+    if (e.key === "Enter") cargarPrestamos(e.target.value);
+});
+
+// Inicial
+window.onload = () => cargarPrestamos();
+
+// --------------------------------------
+// REGISTRAR DEVOLUCIÓN
+// --------------------------------------
+function registrarDevolucion(id) {
+    if (!confirm("¿Confirmar la devolución?")) return;
+
+    fetch("registrar_devolucion.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: "id_prestamo=" + id
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         alert(data.mensaje);
-        cargarPrestamos(document.getElementById('buscar').value);
-    })
-    .catch(error => {
-        console.error("Error al registrar devolución:", error);
-        alert("Error al registrar la devolución.");
+        cargarPrestamos(document.getElementById("buscar").value);
     });
 }
-
-// Buscar con el botón
-document.getElementById('btnBuscar').addEventListener('click', () => {
-    const query = document.getElementById('buscar').value;
-    cargarPrestamos(query);
-});
-
-// Buscar al presionar Enter
-document.getElementById('buscar').addEventListener('keyup', function(e) {
-    if (e.key === "Enter") {
-        const query = this.value;
-        cargarPrestamos(query);
-    }
-});
-
-// Cargar todos los préstamos al abrir la página
-window.onload = () => cargarPrestamos();
 </script>
-
-<style>
-.prestamos-container {
-    padding: 20px;
-    background-color: #fdfdfd;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.busqueda {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-}
-
-.busqueda input {
-    flex: 1;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.busqueda button {
-    background-color: #2196F3;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.busqueda button:hover {
-    background-color: #1976D2;
-}
-
-.tabla-prestamos table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.tabla-prestamos th, .tabla-prestamos td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-.tabla-prestamos th {
-    background-color: #f2f2f2;
-}
-
-.btn-devolucion {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 5px 8px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.btn-devolucion:hover {
-    background-color: #45a049;
-}
-</style>

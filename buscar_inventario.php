@@ -1,26 +1,40 @@
 <?php
 require_once "includes/conexion.php";
 
-$busqueda = isset($_GET['busqueda']) ? $_GET['busqueda'] : '';
-
-$query = "SELECT * FROM inventario 
-          WHERE nombre LIKE '%$busqueda%' 
-          OR autor_marca LIKE '%$busqueda%' 
-          ORDER BY nombre ASC";
-
-$result = $conn->query($query);
 $data = [];
 
+// --- SI VIENE UN id_item DESDE insumos.php ---
 if (isset($_GET["id_item"])) {
     $id = intval($_GET["id_item"]);
     $stmt = $conn->prepare("SELECT * FROM inventario WHERE id_item = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    echo json_encode($result->fetch_assoc());
+    $res = $stmt->get_result();
+    echo json_encode($res->fetch_assoc());
     exit;
 }
 
-header('Content-Type: application/json');
+// --- BÚSQUEDA NORMAL ---
+$busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
+
+if ($busqueda !== "") {
+    $like = "%$busqueda%";
+
+    $stmt = $conn->prepare("
+        SELECT * FROM inventario
+        WHERE nombre_titulo LIKE ?
+        OR autor_marca LIKE ?
+        ORDER BY nombre_titulo ASC
+    ");
+
+    $stmt->bind_param("ss", $like, $like);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    while ($row = $res->fetch_assoc()) {
+        $data[] = $row;
+    }
+}
+
+header("Content-Type: application/json");
 echo json_encode($data);
-?>
