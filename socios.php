@@ -1,130 +1,237 @@
 <?php
 require_once "includes/conexion.php";
-session_start();
 
-// Cargar todas las carreras para el selector
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 $carreras = [];
 $result = $conn->query("SELECT id_carrera, nombre FROM carrera ORDER BY nombre ASC");
 while ($row = $result->fetch_assoc()) {
     $carreras[] = $row;
 }
+
+$accion = $_GET['accion'] ?? '';
 ?>
 
-<h2>Agregar Nuevo Socio</h2>
+<div class="socios-container">
 
-<form id="formSocios" method="POST" action="procesar_socio.php" class="formulario-socio">
-    <label for="dni">DNI:</label>
-    <input type="text" id="dni" name="dni" required>
-    <button type="button" id="btnVerificar" class="btn-verificar">Verificar</button>
-    <div id="mensaje-verificacion" class="mensaje"></div>
+    <h2 class="titulo-socios">Gestión de Socios</h2>
 
-    <label for="nombre">Nombre:</label>
-    <input type="text" id="nombre" name="nombre" disabled required>
+    <?php if ($accion === ''): ?>
 
-    <label for="apellido">Apellido:</label>
-    <input type="text" id="apellido" name="apellido" disabled required>
+        <div class="socios-botones">
+            <a href="dashboard.php?page=socios&accion=alta" class="socio-btn socio-btn-alta">
+                <div class="socio-btn-icon"><i class="fas fa-user-plus"></i></div>
+                <span class="socio-btn-title">Agregar Socio</span>
+                <span class="socio-btn-desc">Registrar un nuevo socio</span>
+            </a>
 
-    <label for="tipo">Tipo de socio:</label>
-    <select name="tipo" id="tipo" disabled required>
-        <option value="">-- Seleccione --</option>
-        <option value="Alumno">Alumno</option>
-        <option value="Docente">Docente</option>
-    </select>
+            <a href="dashboard.php?page=socios&accion=listar" class="socio-btn socio-btn-listar">
+                <div class="socio-btn-icon"><i class="fas fa-users"></i></div>
+                <span class="socio-btn-title">Ver Socios</span>
+                <span class="socio-btn-desc">Consultar socios</span>
+            </a>
+        </div>
 
-    <label for="id_carrera">Carrera (opcional):</label>
-    <select name="id_carrera" id="id_carrera" disabled>
-        <option value="">-- Sin carrera --</option>
-        <?php foreach ($carreras as $c): ?>
-            <option value="<?= $c['id_carrera'] ?>"><?= htmlspecialchars($c['nombre']) ?></option>
-        <?php endforeach; ?>
-    </select>
+    <?php elseif ($accion === 'alta'): ?>
 
-    <button type="submit" id="btnGuardar" class="btn-guardar" disabled>Guardar</button>
-</form>
+        <a href="dashboard.php?page=socios" class="volver-link">← Volver</a>
+
+        <form id="formSocios" method="POST" action="procesar_socio.php" class="formulario-socio">
+
+            <div class="campo-form">
+                <label>DNI</label>
+                <div class="grupo-dni">
+                    <input type="text" id="dni" name="dni" required>
+                    <button type="button" id="btnVerificar" class="btn-verificar">✔</button>
+                </div>
+                <div id="mensaje-verificacion" class="mensaje"></div>
+            </div>
+
+            <div class="campo-form">
+                <label>Nombre</label>
+                <input type="text" id="nombre" name="nombre" disabled required>
+            </div>
+
+            <div class="campo-form">
+                <label>Apellido</label>
+                <input type="text" id="apellido" name="apellido" disabled required>
+            </div>
+
+            <div class="campo-form">
+                <label>Tipo de socio</label>
+                <select id="tipo" name="tipo" disabled required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="Alumno">Alumno</option>
+                    <option value="Docente">Docente</option>
+                </select>
+            </div>
+
+            <div class="campo-form">
+                <label>Carrera</label>
+                <select id="id_carrera" name="id_carrera" disabled>
+                    <option value="">-- Sin carrera --</option>
+                    <?php foreach ($carreras as $c): ?>
+                        <option value="<?= $c['id_carrera'] ?>">
+                            <?= htmlspecialchars($c['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <button type="submit" id="btnGuardar" class="btn-guardar" disabled>
+                Guardar Socio
+            </button>
+        </form>
+
+    <?php elseif ($accion === 'listar'): ?>
+
+        <a href="dashboard.php?page=socios" class="volver-link">← Volver</a>
+
+        <div class="buscador-socios">
+            <input type="text" id="busquedaSocio" placeholder="Buscar por DNI, nombre o apellido">
+            <button type="button" id="btnBuscarSocio">Buscar</button>
+        </div>
+
+        <div id="tablaSocios"></div>
+
+    <?php endif; ?>
+
+</div>
+
+<script>
+const accionActual = "<?= $accion ?>";
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (accionActual === "listar") {
+        cargarSocios();
+
+        document.getElementById("btnBuscarSocio").onclick = () =>
+            cargarSocios(document.getElementById("busquedaSocio").value);
+
+        document.getElementById("busquedaSocio").addEventListener("keyup", e => {
+            if (e.key === "Enter") cargarSocios(e.target.value);
+        });
+    }
+
+    const btnVerificar = document.getElementById("btnVerificar");
+    if (btnVerificar) {
+        btnVerificar.onclick = () => {
+            const dni = document.getElementById("dni").value.trim();
+            const msg = document.getElementById("mensaje-verificacion");
+
+            if (!dni) {
+                msg.innerHTML = "Ingrese un DNI válido";
+                return;
+            }
+
+            fetch("verificar_socio.php", {
+                method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: "dni=" + encodeURIComponent(dni)
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.existe) {
+                    msg.innerHTML = "El socio ya existe";
+                    deshabilitarCampos();
+                } else {
+                    msg.innerHTML = "Socio no registrado. Complete los datos";
+                    habilitarCampos();
+                }
+            });
+        };
+    }
+});
+
+function habilitarCampos() {
+    ["nombre","apellido","tipo","id_carrera","btnGuardar"]
+        .forEach(id => document.getElementById(id).disabled = false);
+}
+
+function deshabilitarCampos() {
+    ["nombre","apellido","tipo","id_carrera","btnGuardar"]
+        .forEach(id => document.getElementById(id).disabled = true);
+}
+
+function cargarSocios(filtro = "") {
+    fetch("fetch_socio.php" + (filtro ? "?q=" + encodeURIComponent(filtro) : ""))
+        .then(r => r.text())
+        .then(html => document.getElementById("tablaSocios").innerHTML = html);
+}
+</script>
 
 <style>
 .formulario-socio {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    max-width: 700px;
-    margin-bottom: 25px;
+    max-width: 520px;
+    margin: 20px auto;
+    padding: 25px 30px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-.formulario-socio label {
-    font-weight: bold;
-    margin-top: 6px;
+
+.campo-form {
+    margin-bottom: 18px;
 }
-.formulario-socio input, .formulario-socio select {
-    padding: 6px;
+
+.campo-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: #2c3e50;
+}
+
+.campo-form input,
+.campo-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    font-size: 15px;
 }
-.btn-verificar, .btn-guardar {
-    grid-column: span 2;
-    padding: 8px;
+
+.campo-form input:focus,
+.campo-form select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.grupo-dni {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-verificar {
+    width: 46px;
+    background-color: #007bff;
+    color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
 }
-.btn-verificar {
-    background-color: #007bff;
-    color: white;
+
+.btn-verificar:hover {
+    background-color: #0056b3;
 }
-.btn-guardar {
-    background-color: #28a745;
-    color: white;
-}
+
 .mensaje {
-    grid-column: span 2;
+    margin-top: 6px;
     font-size: 14px;
 }
+
+.btn-guardar {
+    margin-top: 10px;
+    padding: 12px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-guardar:hover {
+    background-color: #27ae60;
+}
 </style>
-
-<script>
-// ----------- VERIFICAR DNI ----------
-document.getElementById('btnVerificar').addEventListener('click', function () {
-    let dni = document.getElementById('dni').value;
-    let mensajeDiv = document.getElementById('mensaje-verificacion');
-
-    if (dni.trim() === "") {
-        mensajeDiv.innerHTML = "<p style='color:red;'>Ingrese un DNI válido.</p>";
-        return;
-    }
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "verificar_socio.php", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            let respuesta = JSON.parse(xhr.responseText);
-
-            if (respuesta.existe) {
-                mensajeDiv.innerHTML = "<p style='color:red;'>El socio ya existe.</p>";
-                deshabilitarCampos();
-            } else {
-                mensajeDiv.innerHTML = "<p style='color:green;'>El socio no existe. Puede registrarlo.</p>";
-                habilitarCampos();
-            }
-        }
-    };
-    xhr.send("dni=" + encodeURIComponent(dni));
-});
-
-// ----------- FUNCIONES ----------
-function habilitarCampos() {
-    document.getElementById('nombre').disabled = false;
-    document.getElementById('apellido').disabled = false;
-    document.getElementById('tipo').disabled = false;
-    document.getElementById('id_carrera').disabled = false;
-    document.getElementById('btnGuardar').disabled = false;
-}
-function deshabilitarCampos() {
-    document.getElementById('nombre').disabled = true;
-    document.getElementById('apellido').disabled = true;
-    document.getElementById('tipo').disabled = true;
-    document.getElementById('id_carrera').disabled = true;
-    document.getElementById('btnGuardar').disabled = true;
-}
-</script>

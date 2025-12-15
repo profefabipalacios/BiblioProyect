@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 require_once "includes/conexion.php";
 session_start();
 
@@ -20,4 +20,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo "<script>alert('Error al actualizar socio.'); window.location.href='dashboard.php?page=socios';</script>";
     }
 }
-?>
+?> -->

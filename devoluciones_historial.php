@@ -4,6 +4,16 @@ require_once "includes/conexion.php";
 
 <div class="prestamos-container">
     <h2>Historial de Devoluciones</h2>
+    <div class="resumen-historial">
+        <div class="resumen-item">
+            Total de devoluciones: <span id="totalDevoluciones">0</span>
+        </div>
+
+        <div class="exportar">
+            <a href="exportar_historial_excel.php" class="btn-exportar excel">Excel</a>
+            <a href="exportar_historial_pdf.php" class="btn-exportar pdf">PDF</a>
+        </div>
+    </div>
 
     <div class="busqueda">
         <input type="text" id="buscarHistorial" placeholder="Buscar por DNI o ítem">
@@ -36,14 +46,17 @@ function cargarHistorial(buscar = "") {
     .then(resp => resp.json())
     .then(data => {
         const tbody = document.querySelector("#tablaHistorial tbody");
-        tbody.innerHTML = "";
+        const totalSpan = document.getElementById("totalDevoluciones");
 
-        if (data.length === 0) {
+        tbody.innerHTML = "";
+        totalSpan.textContent = data.total;
+
+        if (data.registros.length === 0) {
             tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No hay registros</td></tr>";
             return;
         }
 
-        data.forEach(p => {
+        data.registros.forEach(p => {
             const fila = `
                 <tr>
                     <td>${p.id_prestamo}</td>
@@ -52,10 +65,10 @@ function cargarHistorial(buscar = "") {
                     <td>${p.nombre_bibliotecaria}</td>
                     <td>${p.fecha_prestamo}</td>
                     <td>${p.fecha_devolucion}</td>
-                    <td style="color:green; font-weight:bold;">Devuelto</td>
+                    <td style="color:green;font-weight:bold;">Devuelto</td>
                 </tr>
             `;
-            tbody.innerHTML += fila;
+            tbody.insertAdjacentHTML("beforeend", fila);
         });
     });
 }
@@ -72,3 +85,45 @@ document.getElementById("buscarHistorial").addEventListener("keyup", e => {
 
 window.onload = () => cargarHistorial();
 </script>
+
+<style>
+.resumen-historial {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f5f7fa;
+    border-radius: 8px;
+}
+
+.resumen-item {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.exportar {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-exportar {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-exportar.excel {
+    background-color: #1d6f42;
+}
+
+.btn-exportar.pdf {
+    background-color: #c62828;
+}
+
+.btn-exportar:hover {
+    opacity: 0.85;
+}
+</style>
